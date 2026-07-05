@@ -1,7 +1,7 @@
 import requests
 from sense_hat import SenseHat
 from datetime import datetime
-import pytz
+from zoneinfo import ZoneInfo
 from dateutil.relativedelta import relativedelta
 import os
 
@@ -10,9 +10,8 @@ import os
 def main(team_id):
     sense = SenseHat()
 
-    local_tz = pytz.timezone('America/Los_Angeles')
-    utc_now = pytz.utc.localize(datetime.utcnow())
-    now = utc_now.astimezone(local_tz)
+    local_tz = ZoneInfo('America/Los_Angeles')
+    now = datetime.now(local_tz)
 
     url = 'http://statsapi.mlb.com/api/v1/schedule/games?teamId={}&sportId=1'.format(team_id)
     r = requests.get(url)
@@ -25,7 +24,7 @@ def main(team_id):
         home_team = (r.json().get('dates')[i].get('games')[0].get('teams').get('home').get('team').get('name'))
         away_team_id = (r.json().get('dates')[i].get('games')[0].get('teams').get('away').get('team').get('id'))
         home_team_id = (r.json().get('dates')[i].get('games')[0].get('teams').get('home').get('team').get('id'))
-        game_time = datetime.strptime(game_time, '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=pytz.utc).astimezone(local_tz)
+        game_time = datetime.fromisoformat(game_time).astimezone(local_tz)
         minute_diff = relativedelta(now, game_time).minutes
         hour_diff = relativedelta(now, game_time).hours
         day_diff = relativedelta(now, game_time).days
