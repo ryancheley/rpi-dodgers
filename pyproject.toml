@@ -27,3 +27,8 @@ target-version = "py39"
 
 [tool.ty.environment]
 python-version = "3.9"
+
+[tool.ty.rules]
+# The sense_hat import is only unresolved off-Pi, so the ignore comment on it
+# is "unused" on machines where sense_hat resolves (e.g. Linux CI). Don't fail.
+unused-ignore-comment = "ignore"

@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      # Skip the Pi-only sense-hat dep — it needs RTIMULib and won't install
+      # on the x86 runner. ruff/ty don't need it (the import is ty-ignored).
+      - name: Install dependencies
+        run: uv sync --no-install-package sense-hat
+
+      - name: ruff check
+        run: uv run ruff check .
+
+      - name: ruff format check
+        run: uv run ruff format --check .
+
+      - name: ty check
+        run: uv run ty check
