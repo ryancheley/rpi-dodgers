@@ -36,5 +36,5 @@ jobs:
             --exclude '.venv' \
             --exclude '__pycache__' \
             --exclude '.env' \
-            -e "ssh -o StrictHostKeyChecking=accept-new" \
+            -e "ssh -o StrictHostKeyChecking=accept-new -o BatchMode=yes -o ConnectTimeout=15" \
             ./ "ryan@${{ secrets.PI_HOST }}:/home/ryan/Documents/rpi-dodgers/"
