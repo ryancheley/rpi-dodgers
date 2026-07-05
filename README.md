@@ -99,8 +99,20 @@ The program checks the schedule once per run. To have it run automatically,
 schedule it with `cron` — for example, every 5 minutes during the season:
 
 ```cron
-*/5 * * * * cd /home/pi/rpi-dodgers && /usr/bin/python3 program_api.py
+*/5 * * * * cd /home/ryan/Documents/rpi-dodgers && /usr/bin/python3 program_api.py
 ```
+
+## Updating the code on the Pi
+
+The Pi pulls its own updates from GitHub — there is no push-based deploy.
+Add a `cron` job that `git pull`s the latest `main`, e.g. every 5 minutes:
+
+```cron
+*/5 * * * * cd /home/ryan/Documents/rpi-dodgers && /usr/bin/git pull --ff-only >> /home/ryan/rpi-dodgers-pull.log 2>&1
+```
+
+So merges to `main` land on the Pi automatically within a few minutes. Edit
+`crontab -e` on the Pi to add it.
 
 ## Development (non-Pi)
 
