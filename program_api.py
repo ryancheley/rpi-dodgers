@@ -3,7 +3,7 @@ from sense_hat import SenseHat  # ty: ignore[unresolved-import]  # Pi-only dep
 from datetime import datetime
 from zoneinfo import ZoneInfo
 from dateutil.relativedelta import relativedelta
-import os
+import subprocess
 
 
 def main(team_id):
@@ -118,7 +118,13 @@ def main(team_id):
             and hour_diff == 0
             and (minute_diff == -1 or minute_diff == -5)
         ):
-            os.system("mpv --fs /home/ryan/Documents/rpi-dodgers/dodger_baseball.mp3")
+            subprocess.run(
+                [
+                    "mpv",
+                    "--fs",
+                    "/home/ryan/Documents/rpi-dodgers/dodger_baseball.mp3",
+                ]
+            )
     try:
         game_ID = r.json().get("dates")[0].get("games")[0].get("gamePk")
         run_checker(game_ID, team_id)
