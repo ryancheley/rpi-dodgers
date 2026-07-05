@@ -25,13 +25,11 @@ jobs:
           tags: tag:ci
 
       # Requires Tailscale SSH enabled on the Pi and an ACL allowing tag:ci to
-      # SSH as user "ryan". Resolve the Pi's Tailscale IP from tailscaled's
-      # netmap (no MagicDNS on the runner). --delete keeps the Pi in sync with
-      # main; the excludes protect runtime-only files that don't live in the repo.
+      # SSH as user "ryan". PI_HOST is the Pi's Tailscale IP (no MagicDNS on the
+      # runner). --delete keeps the Pi in sync with main; the excludes protect
+      # runtime-only files that don't live in the repo.
       - name: Rsync to Pi
         run: |
-          PI_IP=$(tailscale ip -4 livingroom)
-          echo "Deploying to livingroom at $PI_IP"
           rsync -az --delete \
             --exclude '.git' \
             --exclude '.github' \
@@ -39,4 +37,4 @@ jobs:
             --exclude '__pycache__' \
             --exclude '.env' \
             -e "ssh -o StrictHostKeyChecking=accept-new" \
-            ./ "ryan@$PI_IP:/home/ryan/Documents/rpi-dodgers/"
+            ./ "ryan@${{ secrets.PI_HOST }}:/home/ryan/Documents/rpi-dodgers/"
