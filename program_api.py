@@ -49,7 +49,7 @@ def main(team_id):
             sense.show_message(msg, scroll_speed=0.05)
 
         if month_diff == 0 and day_diff == 0 and hour_diff == 0 and (minute_diff == -1 or minute_diff == -5):      
-            os.system("omxplayer -b /home/pi/Documents/python_projects/itfdb/dodger_baseball.mp3")
+            os.system("omxplayer -b /home/pi/Documents/python_projects/rpi-dodgers/dodger_baseball.mp3")
     try:
         game_ID = r.json().get('dates')[0].get('games')[0].get('gamePk')
         run_checker(game_ID, team_id)
