@@ -1,0 +1,29 @@
+[project]
+name = "rpi-dodgers"
+version = "0.1.0"
+description = "Raspberry Pi Sense HAT ticker that announces Dodgers games and scoring plays"
+authors = [{ name = "Ryan Cheley" }]
+requires-python = ">=3.9"
+dependencies = [
+    "requests",
+    "python-dateutil",
+    # Raspberry Pi hardware library — only installs on the Pi (Linux).
+    "sense-hat ; sys_platform == 'linux'",
+]
+
+[dependency-groups]
+dev = [
+    "ty",
+    "ruff",
+    "pre-commit",
+]
+
+[tool.uv]
+# Not a distributable package, just an app — skip the build backend.
+package = false
+
+[tool.ruff]
+target-version = "py39"
+
+[tool.ty.environment]
+python-version = "3.9"
