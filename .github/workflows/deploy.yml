@@ -23,6 +23,8 @@ jobs:
           oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           tags: tag:ci
+          # Accept MagicDNS so the "livingroom" hostname resolves on the runner.
+          args: --accept-dns=true
 
       # Requires Tailscale SSH enabled on the Pi and an ACL allowing tag:ci to
       # SSH as user "ryan". --delete keeps the Pi in sync with main; the
