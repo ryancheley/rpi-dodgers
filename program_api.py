@@ -60,9 +60,8 @@ def run_checker(game_id, team_id):
     url = 'http://statsapi.mlb.com/api/v1/game/{}/feed/live'.format(game_id)
     r = requests.get(url)
 
-    local_tz = pytz.timezone('America/Los_Angeles')
-    utc_now = pytz.utc.localize(datetime.utcnow())
-    now = utc_now.astimezone(local_tz)
+    local_tz = ZoneInfo('America/Los_Angeles')
+    now = datetime.now(local_tz)
     sense = SenseHat()
 
 
