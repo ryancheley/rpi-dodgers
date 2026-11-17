@@ -1,5 +1,6 @@
-from sense_hat import SenseHat  # ty: ignore[unresolved-import]  # Pi-only dep
 import subprocess
+
+from sense_hat import SenseHat  # ty: ignore[unresolved-import]  # Pi-only dep
 
 
 def main():
@@ -11,7 +12,8 @@ def main():
             "omxplayer",
             "-b",
             "/home/pi/Documents/python_projects/itfdb/dodger_baseball.mp3",
-        ]
+        ],
+        check=False,
     )
 
 

@@ -1,9 +1,10 @@
-import requests
-from sense_hat import SenseHat  # ty: ignore[unresolved-import]  # Pi-only dep
+import subprocess
 from datetime import datetime
 from zoneinfo import ZoneInfo
+
+import requests
 from dateutil.relativedelta import relativedelta
-import subprocess
+from sense_hat import SenseHat  # ty: ignore[unresolved-import]  # Pi-only dep
 
 
 def main(team_id):
@@ -12,9 +13,7 @@ def main(team_id):
     local_tz = ZoneInfo("America/Los_Angeles")
     now = datetime.now(local_tz)
 
-    url = "http://statsapi.mlb.com/api/v1/schedule/games?teamId={}&sportId=1".format(
-        team_id
-    )
+    url = f"http://statsapi.mlb.com/api/v1/schedule/games?teamId={team_id}&sportId=1"
     r = requests.get(url)
 
     total_games = r.json().get("totalGames")
@@ -75,7 +74,7 @@ def main(team_id):
             .get("leagueRecord")
             .get("losses")
         )
-        away_record = "{}-{}".format(away_wins, away_loss)
+        away_record = f"{away_wins}-{away_loss}"
         home_wins = (
             r.json()
             .get("dates")[i]
@@ -94,7 +93,7 @@ def main(team_id):
             .get("leagueRecord")
             .get("losses")
         )
-        home_record = "{}-{}".format(home_wins, home_loss)
+        home_record = f"{home_wins}-{home_loss}"
 
         if (
             month_diff == 0
@@ -103,13 +102,9 @@ def main(team_id):
             and 0 >= minute_diff >= -10
         ):
             if home_team_id == team_id:
-                msg = "The {} ({}) will be playing the {} ({}) at {}".format(
-                    home_team, home_record, away_team, away_record, game_time
-                )
+                msg = f"The {home_team} ({home_record}) will be playing the {away_team} ({away_record}) at {game_time}"
             else:
-                msg = "The {} ({}) will be playing at the {} ({}) at {}".format(
-                    home_team, home_record, away_team, away_record, game_time
-                )
+                msg = f"The {home_team} ({home_record}) will be playing at the {away_team} ({away_record}) at {game_time}"
             sense.show_message(msg, scroll_speed=0.05)
 
         if (
@@ -123,7 +118,8 @@ def main(team_id):
                     "mpv",
                     "--fs",
                     "/home/ryan/Documents/rpi-dodgers/dodger_baseball.mp3",
-                ]
+                ],
+                check=False,
             )
     try:
         game_ID = r.json().get("dates")[0].get("games")[0].get("gamePk")
@@ -133,7 +129,7 @@ def main(team_id):
 
 
 def run_checker(game_id, team_id):
-    url = "http://statsapi.mlb.com/api/v1/game/{}/feed/live".format(game_id)
+    url = f"http://statsapi.mlb.com/api/v1/game/{game_id}/feed/live"
     r = requests.get(url)
 
     local_tz = ZoneInfo("America/Los_Angeles")
@@ -176,40 +172,39 @@ def run_checker(game_id, team_id):
             and day_diff == 0
             and hour_diff == 0
             and 2 >= minute_diff >= 0
-        ):
-            if run_team_id == team_id:
-                score_away = (
-                    r.json()
-                    .get("liveData")
-                    .get("boxscore")
-                    .get("teams")
-                    .get("away")
-                    .get("teamStats")
-                    .get("teamSkaterStats")
-                    .get("runs")
-                )
-                score_home = (
-                    r.json()
-                    .get("liveData")
-                    .get("boxscore")
-                    .get("teams")
-                    .get("home")
-                    .get("teamStats")
-                    .get("teamSkaterStats")
-                    .get("runs")
-                )
-                score = "{}-{}".format(score_away, score_home)
-                run_msg = (
-                    "run!!!! "
-                    + r.json()
-                    .get("liveData")
-                    .get("plays")
-                    .get("allPlays")[scoring_plays[i]]
-                    .get("result")
-                    .get("description")
-                    + ". The score is {}".format(score)
-                )
-                sense.show_message(run_msg, scroll_speed=0.05)
+        ) and run_team_id == team_id:
+            score_away = (
+                r.json()
+                .get("liveData")
+                .get("boxscore")
+                .get("teams")
+                .get("away")
+                .get("teamStats")
+                .get("teamSkaterStats")
+                .get("runs")
+            )
+            score_home = (
+                r.json()
+                .get("liveData")
+                .get("boxscore")
+                .get("teams")
+                .get("home")
+                .get("teamStats")
+                .get("teamSkaterStats")
+                .get("runs")
+            )
+            score = f"{score_away}-{score_home}"
+            run_msg = (
+                "run!!!! "
+                + r.json()
+                .get("liveData")
+                .get("plays")
+                .get("allPlays")[scoring_plays[i]]
+                .get("result")
+                .get("description")
+                + f". The score is {score}"
+            )
+            sense.show_message(run_msg, scroll_speed=0.05)
 
 
 if __name__ == "__main__":
