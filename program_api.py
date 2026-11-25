@@ -129,80 +129,27 @@ def main(team_id):
 
 
 def run_checker(game_id, team_id):
-    url = f"http://statsapi.mlb.com/api/v1/game/{game_id}/feed/live"
-    r = requests.get(url)
+    # The live feed is only served at v1.1; v1 returns 404.
+    url = f"https://statsapi.mlb.com/api/v1.1/game/{game_id}/feed/live"
+    feed = requests.get(url).json()
 
-    local_tz = ZoneInfo("America/Los_Angeles")
-    now = datetime.now(local_tz)
+    now = datetime.now(ZoneInfo("America/Los_Angeles"))
     sense = SenseHat()
 
-    scoring_plays = r.json().get("liveData").get("plays").get("scoringPlays")
-
-    for i in range(len(scoring_plays)):
-        run_team_id = (
-            r.json()
-            .get("liveData")
-            .get("plays")
-            .get("allPlays")[scoring_plays[i]]
-            .get("team")
-            .get("id")
-        )
-        run_ts = (
-            r.json()
-            .get("liveData")
-            .get("plays")
-            .get("allPlays")[scoring_plays[i]]
-            .get("about")
-            .get("dateTime")
-        )
-        run_ts = (
-            datetime.strptime(run_ts, "%Y-%m-%dT%H:%M:%SZ")
-            .replace(tzinfo=ZoneInfo("UTC"))
-            .astimezone(local_tz)
-        )
-        minute_diff = relativedelta(now, run_ts).minutes
-        hour_diff = relativedelta(now, run_ts).hours
-        day_diff = relativedelta(now, run_ts).days
-        month_diff = relativedelta(now, run_ts).months
-        run_ts_hour = str(run_ts.hour)
-        run_ts_minute = "0" + str(run_ts.minute)
-        run_ts = run_ts_hour + ":" + run_ts_minute[-2:]
-        if (
-            month_diff == 0
-            and day_diff == 0
-            and hour_diff == 0
-            and 2 >= minute_diff >= 0
-        ) and run_team_id == team_id:
-            score_away = (
-                r.json()
-                .get("liveData")
-                .get("boxscore")
-                .get("teams")
-                .get("away")
-                .get("teamStats")
-                .get("teamSkaterStats")
-                .get("runs")
-            )
-            score_home = (
-                r.json()
-                .get("liveData")
-                .get("boxscore")
-                .get("teams")
-                .get("home")
-                .get("teamStats")
-                .get("teamSkaterStats")
-                .get("runs")
-            )
-            score = f"{score_away}-{score_home}"
+    teams = feed["gameData"]["teams"]
+    plays = feed["liveData"]["plays"]
+    for i in plays["scoringPlays"]:
+        play = plays["allPlays"][i]
+        # Plays don't name the scoring team; the away team bats in the top half.
+        batting = "away" if play["about"]["halfInning"] == "top" else "home"
+        if teams[batting]["id"] != team_id:
+            continue
+        scored_at = datetime.fromisoformat(play["about"]["endTime"])
+        if 0 <= (now - scored_at).total_seconds() < 3 * 60:
+            result = play["result"]
+            score = f"{result['awayScore']}-{result['homeScore']}"
             run_msg = (
-                "run!!!! "
-                + r.json()
-                .get("liveData")
-                .get("plays")
-                .get("allPlays")[scoring_plays[i]]
-                .get("result")
-                .get("description")
-                + f". The score is {score}"
+                f"run!!!! {result['description'].rstrip('.')}. The score is {score}"
             )
             sense.show_message(run_msg, scroll_speed=0.05)
 
